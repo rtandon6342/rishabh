@@ -1,0 +1,40 @@
+﻿@page "/counter"
+@using Webapp.WebApp.Data
+@inject IJSRuntime JS
+@inject FileService FileService
+@using System.Net
+@inject VerityOperatingSystem verityOperatingSystem
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<button @onclick="DownloadFileFromURL">
+    Download
+</button>
+
+
+@code {
+
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+    
+    private async Task DownloadFileFromURL()
+    {
+        if(!verityOperatingSystem.CheckIsPhone())
+        {
+            var fileName = "file.csv";
+            var streamRef = "text/csv";
+            var bytes = await FileService.DownloadFileToBytes();
+            await JS.InvokeVoidAsync("triggerFileDownload", fileName, streamRef, bytes);
+        }else{
+            await FileService.FileDownloadToPhone();
+        }
+    }
+}
